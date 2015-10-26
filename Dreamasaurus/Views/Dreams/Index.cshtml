@@ -1,0 +1,41 @@
+﻿@using Microsoft.AspNet.Identity
+@model IEnumerable<Dreamasaurus.Models.Dream>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Latest Dreams</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+@foreach (var item in Model)
+{
+    <div class="row">
+        <div class="col-md-6"><a href="@Url.Action("Details", "Dreams", new {id = item.Id})">@Html.DisplayFor(modelItem => item.Title)</a></div>
+    </div>
+    <div class="row">
+        <div class="col-md-6"><small>Published by @Html.DisplayFor(modelItem => item.User.UserName)</small></div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">@Html.DisplayFor(modelItem => item.Text)</div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            @if (User.Identity.IsAuthenticated)
+            {
+                if (item.User != null)
+                {
+                    if (User.Identity.GetUserId().Equals(item.User.Id) || User.IsInRole("Admin"))
+                    {
+                        @Html.ActionLink("Edit", "Edit", new {id = item.Id})
+                        @:| @Html.ActionLink("Delete", "Delete", new {id = item.Id})
+                    }
+                }
+            }
+        </div>
+    </div>
+    <br/><br/>
+}
