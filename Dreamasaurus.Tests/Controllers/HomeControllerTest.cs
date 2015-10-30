@@ -1,13 +1,13 @@
 ﻿using System.Web.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Dreamasaurus.Controllers;
 
 namespace Dreamasaurus.Tests.Controllers
 {
-    [TestClass]
+    [TestFixture]
     public class HomeControllerTest
     {
-        [TestMethod]
+       [Test]
         public void Index()
         {
             // Arrange
@@ -20,7 +20,7 @@ namespace Dreamasaurus.Tests.Controllers
             Assert.IsNotNull(result);
         }
 
-        [TestMethod]
+       [Test]
         public void About()
         {
             // Arrange
@@ -33,7 +33,7 @@ namespace Dreamasaurus.Tests.Controllers
             Assert.AreEqual("Your application description page.", result.ViewBag.Message);
         }
 
-        [TestMethod]
+       [Test]
         public void Contact()
         {
             // Arrange

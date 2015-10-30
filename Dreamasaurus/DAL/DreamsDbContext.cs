@@ -4,7 +4,13 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Dreamasaurus.DAL
 {
-    public class DreamsDbContext : IdentityDbContext<ApplicationUser>
+    public interface IDreamsDbContext
+    {
+        DbSet<Dream> Dreams { get; set; }
+        DbSet<Tag> Tags { get; set; }
+    }
+
+    public class DreamsDbContext : IdentityDbContext<ApplicationUser>, IDreamsDbContext
     {
         public DreamsDbContext() : base("DreamsDbContext")
         {
@@ -14,4 +20,5 @@ namespace Dreamasaurus.DAL
         public DbSet<Tag> Tags { get; set; }
 
     }
+
 }

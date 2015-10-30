@@ -1,5 +1,4 @@
-﻿using System.Data.Entity;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using Dreamasaurus.DAL;
@@ -11,18 +10,20 @@ namespace Dreamasaurus.Controllers
 {
     public class DreamsController : Controller
     {
-        private readonly DreamsDbContext _db = new DreamsDbContext();
+        private readonly UnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public DreamsController()
         {
-            _userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_db));
+            _unitOfWork = new UnitOfWork();
+            _userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_unitOfWork.DreamsRepository.Context));
         }
 
         // GET: Dreams
-        public ActionResult Index()
+        public ViewResult Index()
         {
-            return View(_db.Dreams.ToList());
+            var dreams = _unitOfWork.DreamsRepository.Get();
+            return View(dreams.ToList());
         }
 
         // GET: Dreams/Details/5
@@ -32,7 +33,7 @@ namespace Dreamasaurus.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Dream dream = _db.Dreams.Find(id);
+            Dream dream = _unitOfWork.DreamsRepository.GetById(id);
             if (dream == null)
             {
                 return HttpNotFound();
@@ -58,8 +59,8 @@ namespace Dreamasaurus.Controllers
             if (ModelState.IsValid)
             {
                 dream.User = currentUser;
-                _db.Dreams.Add(dream);
-                _db.SaveChanges();
+                _unitOfWork.DreamsRepository.Insert(dream);
+                _unitOfWork.Save();
                 return RedirectToAction("Index");
             }
 
@@ -73,7 +74,7 @@ namespace Dreamasaurus.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Dream dream = _db.Dreams.Find(id);
+            Dream dream = _unitOfWork.DreamsRepository.GetById(id);
             if (dream == null)
             {
                 return HttpNotFound();
@@ -90,8 +91,8 @@ namespace Dreamasaurus.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Entry(dream).State = EntityState.Modified;
-                _db.SaveChanges();
+                _unitOfWork.DreamsRepository.Update(dream);
+                _unitOfWork.Save();
                 return RedirectToAction("Index");
             }
             return View(dream);
@@ -104,7 +105,7 @@ namespace Dreamasaurus.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Dream dream = _db.Dreams.Find(id);
+            Dream dream = _unitOfWork.DreamsRepository.GetById(id);
             if (dream == null)
             {
                 return HttpNotFound();
@@ -117,9 +118,10 @@ namespace Dreamasaurus.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Dream dream = _db.Dreams.Find(id);
-            _db.Dreams.Remove(dream);
-            _db.SaveChanges();
+            // ReSharper disable once UnusedVariable
+            Dream dream = _unitOfWork.DreamsRepository.GetById(id);
+            _unitOfWork.DreamsRepository.Delete(id);
+            _unitOfWork.Save();
             return RedirectToAction("Index");
         }
 
@@ -127,7 +129,7 @@ namespace Dreamasaurus.Controllers
         {
             if (disposing)
             {
-                _db.Dispose();
+                _unitOfWork.Dispose();
             }
             base.Dispose(disposing);
         }
